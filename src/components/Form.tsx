@@ -1,36 +1,44 @@
 import React, { FormEvent, useState } from "react";
-import { useForm } from "react-hook-form";
-const Form = () => {
-  const form = useForm();
-  console.log(form);
+import { Field, FieldValues, useForm } from "react-hook-form";
 
-  const [person, setPerson] = useState({ name: "", age: 0 });
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    console.log(person);
-  };
+interface FormDATA {
+  name: string;
+  age: number;
+}
+
+const Form = () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormDATA>();
+  const onSubmit = (data: FieldValues) => console.log(data);
+
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <div className="mb-3">
         <label htmlFor="name" className="form-label">
           Name
         </label>
         <input
-          value={person.name}
-          onChange={(e) => setPerson({ ...person, name: e.target.value })}
+          {...register("name", { required: true, minLength: 3 })}
+          id="name"
           type="text"
           className="form-control"
         />
+        {errors.name?.type === "required" && (
+          <p className="text-danger">The name field is required.</p>
+        )}
+        {errors.name?.type === "minLength" && (
+          <p className="text-danger">The name must be atleast 3 characters</p>
+        )}
       </div>
       <div className="mb-3">
         <label htmlFor="age" className="form-label">
           Age
         </label>
         <input
-          onChange={(e) =>
-            setPerson({ ...person, age: parseInt(e.target.value) })
-          }
-          value={person.age}
+          {...register("age")}
           id="age"
           type="number"
           className="form-control"
